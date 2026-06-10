@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>🚀 Rocket Rescue</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
+
+:root{
+  --gold:#ffd700;--ok:#4ecb71;--danger:#ff4444;
+  --text:#f0f4ff;--dim:#9aaac0;
+  --panel-bg:rgba(6,12,36,0.96);
+  --border:rgba(255,255,255,0.13);
+  --fh:'Fredoka One',cursive;
+  --fb:'Nunito',sans-serif;
+  --sat:env(safe-area-inset-top,0px);
+  --sar:env(safe-area-inset-right,0px);
+  --sab:env(safe-area-inset-bottom,0px);
+  --sal:env(safe-area-inset-left,0px);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;overflow:hidden;touch-action:none;}
+body{background:#070d1e;font-family:var(--fb);color:var(--text);display:flex;flex-direction:column;}
+
+/* ── LAYOUT LANDSCAPE ── */
+#wrap{display:flex;flex-direction:row;width:100%;height:100%;
+  padding:var(--sat) var(--sar) var(--sab) var(--sal);}
+#cc{flex:1;position:relative;overflow:hidden;min-width:0;}
+#cv{display:block;width:100%;height:100%;}
+#panel{width:240px;min-width:220px;flex-shrink:0;background:var(--panel-bg);
+  border-left:1px solid var(--border);display:flex;flex-direction:column;
+  padding:10px;gap:8px;overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;backdrop-filter:blur(14px);z-index:10;}
+
+/* ── LAYOUT PORTRAIT ── */
+@media(orientation:portrait){
+  #wrap{flex-direction:column;}
+  #cc{flex:none;height:56vh;width:100%;}
+  #panel{width:100%;min-width:unset;flex:1;border-left:none;
+    border-top:1px solid var(--border);flex-direction:row;flex-wrap:wrap;
+    padding:8px 10px;gap:6px;align-content:flex-start;overflow-y:auto;}
+}
+#panel::-webkit-scrollbar{width:3px}
+#panel::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+
+/* ── HEADER ── */
+.panel-header{width:100%;display:flex;align-items:center;justify-content:space-between;gap:6px;}
+.ht{font-family:var(--fh);font-size:18px;color:var(--gold);
+    text-shadow:0 0 14px rgba(255,215,0,.35);white-space:nowrap;}
+#lvbar{display:flex;gap:6px;align-items:center;background:rgba(255,255,255,.06);
+  border-radius:6px;padding:4px 8px;font-size:11px;font-weight:700;white-space:nowrap;}
+#lvbar span{color:var(--gold);}
+@media(orientation:portrait){.ht{font-size:15px;}#lvbar{font-size:10px;padding:3px 6px;}}
+
+/* ── DIVIDER ── */
+.dv{height:1px;background:var(--border);width:100%;}
+@media(orientation:portrait){.dv{display:none;}}
+
+/* ── CONTROL GROUPS ── */
+.cg{display:flex;flex-direction:column;gap:3px;width:100%;}
+@media(orientation:portrait){.cg{width:calc(50% - 3px);}#cg-wind{width:calc(50% - 3px);}}
+.cl{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:700;}
+.cl .bg{background:rgba(255,215,0,.18);color:var(--gold);padding:1px 5px;border-radius:8px;
+  font-size:10px;font-weight:800;min-width:46px;text-align:center;}
+.cd{font-size:9px;color:var(--dim);display:flex;justify-content:space-between;}
+
+/* ── RANGE SLIDERS ── */
+input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:3px;
+  background:rgba(255,255,255,.13);outline:none;cursor:pointer;touch-action:pan-x;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;
+  width:clamp(18px,5vw,28px);height:clamp(18px,5vw,28px);
+  border-radius:50%;background:var(--gold);cursor:pointer;box-shadow:0 0 6px rgba(255,215,0,.55);}
+
+/* ── TOGGLES ── */
+.tr{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;
+    cursor:pointer;user-select:none;padding:3px 0;}
+@media(orientation:portrait){.tr{width:calc(50% - 3px);font-size:10px;}}
+.sw{position:relative;width:34px;height:18px;flex-shrink:0;}
+.sw input{opacity:0;width:0;height:0;}
+.swt{position:absolute;inset:0;background:rgba(255,255,255,.14);border-radius:18px;transition:background .26s;cursor:pointer;}
+.swt::before{content:'';position:absolute;width:12px;height:12px;left:3px;top:3px;
+  background:#fff;border-radius:50%;transition:transform .26s;}
+.sw input:checked+.swt{background:var(--gold);}
+.sw input:checked+.swt::before{transform:translateX(16px);}
+
+/* ── WIND ROW ── */
+#wr{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--dim);}
+@media(orientation:portrait){#wr{width:calc(50% - 3px);}}
+#wa{font-size:15px;}
+
+/* ── PREDICTION BTNS ── */
+#pq{background:rgba(255,215,0,.07);border:1px solid rgba(255,215,0,.17);
+  border-radius:8px;padding:7px 9px;font-size:11px;color:var(--dim);width:100%;}
+@media(orientation:portrait){#pq{padding:5px 7px;}}
+#pq .q{color:var(--gold);font-weight:700;margin-bottom:5px;font-size:11px;}
+.pb{display:inline-block;padding:3px 9px;border-radius:5px;border:1px solid var(--border);
+  background:rgba(255,255,255,.06);color:var(--text);font-size:10px;cursor:pointer;
+  margin:2px 1px 0;font-family:var(--fb);font-weight:600;min-height:28px;line-height:22px;}
+.pb:active{background:rgba(255,215,0,.22);}
+.pb.sel{background:rgba(255,215,0,.28);border-color:var(--gold);color:var(--gold);}
+
+/* ── BUTTONS ── */
+#bl{font-family:var(--fh);font-size:16px;padding:10px;border:none;border-radius:9px;
+  background:linear-gradient(135deg,#ff6b35,#e03a00);color:#fff;cursor:pointer;
+  box-shadow:0 3px 16px rgba(255,80,0,.38);width:100%;min-height:44px;
+  transition:transform .1s,box-shadow .18s;}
+#bl:active{transform:scale(.97);}
+#bl:disabled{opacity:.38;cursor:not-allowed;transform:none;}
+#br{font-size:12px;font-weight:700;padding:7px;border:1px solid var(--border);border-radius:7px;
+  background:rgba(255,255,255,.06);color:var(--dim);cursor:pointer;width:100%;min-height:38px;}
+#br:active{background:rgba(255,255,255,.12);color:var(--text);}
+@media(orientation:portrait){
+  #bl{font-size:14px;padding:8px;min-height:40px;}
+  #btn-row{display:flex;gap:6px;width:100%;}
+  #btn-row #bl{flex:2;}#btn-row #br{flex:1;}
+}
+
+/* ── PROFESSOR ── */
+#pbox{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);
+  border-radius:8px;padding:8px 10px;display:flex;gap:6px;align-items:flex-start;width:100%;}
+#pi{font-size:20px;flex-shrink:0;}
+#pt{font-size:10px;color:var(--dim);line-height:1.45;font-style:italic;}
+@media(orientation:portrait){
+  #pbox{padding:5px 7px;}
+  #pt{font-size:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  #pt.expanded{-webkit-line-clamp:unset;overflow:visible;}
+  #pi{font-size:16px;cursor:pointer;}
+}
+
+/* ── OUTCOME OVERLAY ── */
+#ov{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  background:rgba(3,8,26,.97);border:2px solid var(--border);border-radius:14px;
+  padding:22px 28px;text-align:center;display:none;flex-direction:column;gap:9px;
+  z-index:100;backdrop-filter:blur(18px);width:min(340px,90vw);
+  box-shadow:0 0 50px rgba(0,0,0,.85);animation:pop .35s cubic-bezier(.34,1.56,.64,1);}
+#ov.vis{display:flex;}
+@keyframes pop{from{opacity:0;transform:translate(-50%,-50%) scale(.6);}to{opacity:1;transform:translate(-50%,-50%) scale(1);}}
+#oe{font-size:46px;}
+#ot{font-family:var(--fh);font-size:24px;color:var(--gold);}
+#om{font-size:12px;color:var(--dim);line-height:1.5;}
+#os{font-size:11px;color:var(--ok);font-weight:700;}
+
+/* outcome button row */
+.ov-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:2px;}
+#bn{font-family:var(--fh);font-size:14px;padding:9px 18px;border:none;border-radius:9px;
+  background:linear-gradient(135deg,#4ecb71,#27ae60);color:#fff;cursor:pointer;min-height:44px;}
+#bn:active{transform:scale(.97);}
+
+/* ── REPLAY BUTTON in overlay ── */
+#btn-replay{font-family:var(--fh);font-size:13px;padding:9px 14px;border:none;border-radius:9px;
+  background:linear-gradient(135deg,#4488ff,#2255cc);color:#fff;cursor:pointer;min-height:44px;}
+#btn-replay:active{transform:scale(.97);}
+
+/* ── REPLAY STOP BUTTON (canvas overlay, absolute) ── */
+#replay-bar{
+  display:none;
+  position:absolute;top:10px;right:10px;
+  display:flex;align-items:center;gap:8px;
+  background:rgba(4,10,30,.88);border:1px solid rgba(255,255,255,.18);
+  border-radius:10px;padding:6px 12px;z-index:50;
+}
+#replay-bar.vis{display:flex;}
+#replay-label{font-family:var(--fh);font-size:13px;color:#4af;letter-spacing:.5px;}
+#btn-stop{font-size:11px;font-weight:700;padding:4px 10px;border:1px solid rgba(255,255,255,.2);
+  border-radius:6px;background:rgba(255,60,60,.25);color:#ff9999;cursor:pointer;min-height:30px;}
+#btn-stop:active{background:rgba(255,60,60,.45);}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="cc">
+    <canvas id="cv"></canvas>
+
+    <!-- replay controls (always in DOM, shown/hidden) -->
+    <div id="replay-bar">
+      <span id="replay-label">🎬 REPLAY 0.25×</span>
+      <button id="btn-stop" onclick="GS.stopReplay()">⏹ Stop</button>
+    </div>
+
+    <!-- outcome overlay -->
+    <div id="ov">
+      <div id="oe">🎉</div>
+      <div id="ot">Perfect Rescue!</div>
+      <div id="om"></div>
+      <div id="os"></div>
+      <div class="ov-btns">
+        <button id="bn">Try Again 🚀</button>
+        <button id="btn-replay" onclick="GS.startReplay()">🎬 Replay</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="panel">
+    <div class="panel-header">
+      <div class="ht">🚀 Rocket Rescue</div>
+      <div id="lvbar">Lv<span id="ll">1</span>&nbsp;×<span id="la">0</span>&nbsp;★<span id="ls">0</span></div>
+    </div>
+    <div class="dv"></div>
+    <div class="cg">
+      <div class="cl">🔥 Power <span class="bg" id="vp">50%</span></div>
+      <input type="range" id="sp" min="10" max="100" value="50">
+      <div class="cd"><span>Weak</span><span>Strong</span></div>
+    </div>
+    <div class="cg">
+      <div class="cl">⏱️ Burn <span class="bg" id="vb">1.5s</span></div>
+      <input type="range" id="sb" min="3" max="30" value="9">
+      <div class="cd"><span>0.5s</span><span>5s</span></div>
+    </div>
+    <div class="cg">
+      <div class="cl">📐 Angle <span class="bg" id="va">90°↑</span></div>
+      <input type="range" id="sa" min="30" max="150" value="90">
+      <div class="cd"><span>30°→</span><span>←150°</span></div>
+    </div>
+    <div class="cg" id="cg-wind">
+      <div class="cl">🌬️ Wind Sens <span class="bg" id="vw">Med</span></div>
+      <input type="range" id="sw2" min="1" max="3" value="2" step="1">
+      <div class="cd"><span>Low</span><span>High</span></div>
+    </div>
+    <div class="dv"></div>
+    <div id="wr"><span id="wa">—</span><span id="wl">Wind: Calm</span></div>
+    <label class="tr">
+      <div class="sw"><input type="checkbox" id="tp" checked><div class="swt"></div></div>
+      Trajectory Preview
+    </label>
+    <label class="tr">
+      <div class="sw"><input type="checkbox" id="tf"><div class="swt"></div></div>
+      Force Arrows
+    </label>
+    <div class="dv"></div>
+    <div id="pq">
+      <div class="q">🤔 What will happen?</div>
+      <button class="pb" onclick="GS.setPred('success')">✅ Win!</button>
+      <button class="pb" onclick="GS.setPred('weak')">📉 Weak</button>
+      <button class="pb" onclick="GS.setPred('strong')">💥 Strong</button>
+    </div>
+    <div id="btn-row">
+      <button id="bl" onclick="GS.launch()">🚀 LAUNCH!</button>
+      <button id="br" onclick="GS.reset()">↺ Reset</button>
+    </div>
+    <div class="dv"></div>
+    <div id="pbox">
+      <div id="pi" onclick="document.getElementById('pt').classList.toggle('expanded')">🐿️</div>
+      <div id="pt">Hi! I'm Professor Acorn. Try 85° angle, 60% power, 1.5s burn. Watch the rocket arc UP over the tree and come back DOWN into it! 🔍</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================================================================
+   ROCKET RESCUE  —  with Parachute FX, Fuel Gauge, Slow-Mo Replay
+   ================================================================
+   NEW FEATURES:
+   ─ Parachute: on success, freed rocket animates drifting down
+     with deployed chute. Physics: sinusoidal sway + gravity drift.
+   ─ Fuel Gauge: HUD bar drawn on canvas during flight.
+     Height = burnCurve(t, burnTime). Color: green→orange→red.
+   ─ Slow-Mo Replay: 'replay' phase replays simStates at 0.25×
+     (0.5 steps/frame vs 2 at real-time). Overlay hidden, stop
+     button shown. Returns to outcome overlay when done.
+   ================================================================ */
+
+// ── CONFIG ──────────────────────────────────────────────────────
+const C={
+  TREE_GX:1.10, TREE_GH:2.44, TARGET_GY:1.52,
+  LAUNCH_X_FRAC:0.10,
+  GRAVITY:4.20, DRY_MASS:0.050, PROP_MAX:0.012, THRUST_PEAK:0.55,
+  CD:0.55, AREA:0.0028, RHO:1.225,
+  RAMP_T:0.12, TAIL_START:0.85, TAIL_K:5.0,
+  DT:0.008, HIT_R:0.22,
+  IMPACT_MIN:0.50, IMPACT_MAX:4.50,
+  ANG_MIN:30, ANG_MAX:150, ANG_DEF:90,
+  SIM_SPEED:2,   // real-time (2 steps × DT=0.008 × 60fps ≈ 1s wall = 1s sim)
+  REPLAY_SPEED:0.5, // steps per frame at 0.25× (quarter of SIM_SPEED)
+  LEVELS:[
+    {wind:0,    wv:0,    label:'No Wind',          thv:0,   moving:false},
+    {wind:0.06, wv:0.02, label:'Light Wind',       thv:0,   moving:false},
+    {wind:0.14, wv:0.06, label:'Moderate Wind',    thv:0,   moving:false},
+    {wind:0.10, wv:0.08, label:'Variable Heights', thv:0.4, moving:false},
+    {wind:0.18, wv:0.08, label:'Moving Target',    thv:0,   moving:true },
+  ],
+};
+const KDRAG=0.5*C.RHO*C.CD*C.AREA;
+
+// ── PHYSICS ─────────────────────────────────────────────────────
+const Phys={
+  burnCurve(t,bt){
+    if(t<=0||bt<=0||t>bt)return 0;
+    const tail=C.TAIL_START*bt;
+    if(t<C.RAMP_T)return t/C.RAMP_T;
+    if(t<tail)return 1.0;
+    return Math.exp(-C.TAIL_K*(t-tail)/(bt-tail));
+  },
+  simulate(p){
+    const pf=p.power/100,tpk=pf*C.THRUST_PEAK,pm=pf*C.PROP_MAX,bt=p.burnTime;
+    const rad=p.angleDeg*Math.PI/180,tdx=Math.cos(rad),tdy=Math.sin(rad);
+    let gx=0,gy=0,vx=0,vy=0,t=0,wMs=p.windBase*p.windDir,wTimer=0;
+    const states=[];
+    const push=(bm,tN,dN,mass,wN)=>states.push({gx,gy,vx,vy,t,
+      thrust_on:bm>0.02,thrustN:tN,dragN:dN,windN:wN,mass});
+    push(1,0,0,C.DRY_MASS+pm,wMs);
+    for(let s=0;s<14000;s++){
+      t+=C.DT;
+      const burnt=pm*Math.min(1,t/Math.max(bt,0.001));
+      const mass=C.DRY_MASS+pm-burnt;
+      const bm=this.burnCurve(t,bt),thrN=tpk*bm;
+      wTimer+=C.DT;
+      if(wTimer>=0.5){wTimer=0;if(p.useRandom&&p.windVar>0)wMs=(p.windBase+(Math.random()-.5)*2*p.windVar)*p.windDir;}
+      const altF=1+Math.max(0,gy/1.5)*0.06,wEff=wMs*p.windSens*altF;
+      const relVx=wEff-vx,windN=KDRAG*relVx*Math.abs(relVx);
+      const spd=Math.sqrt(vx*vx+vy*vy);
+      let Fdx=0,Fdy=0,dN=0;
+      if(spd>0.001){dN=KDRAG*spd*spd;Fdx=-dN*(vx/spd);Fdy=-dN*(vy/spd);}
+      const ax=(thrN*tdx+Fdx+windN)/mass,ay=(thrN*tdy+Fdy-mass*C.GRAVITY)/mass;
+      vx+=ax*C.DT;vy+=ay*C.DT;gx+=vx*C.DT;gy+=vy*C.DT;
+      push(bm,thrN,dN,mass,wEff);
+      if(gy<-0.15&&t>0.2)break;if(t>30)break;
+    }
+    return states;
+  },
+  toPixels(states,lx,ly,ppm){
+    for(const s of states){s.px=lx+s.gx*ppm;s.py=ly-s.gy*ppm;}
+    return states;
+  },
+  checkHit(states,tpx,tpy,rPx){
+    for(let i=1;i<states.length;i++){
+      const s=states[i],dx=s.px-tpx,dy=s.py-tpy;
+      if(dx*dx+dy*dy<rPx*rPx)return{hit:true,state:s,index:i,speedMs:Math.sqrt(s.vx*s.vx+s.vy*s.vy)};
+    }
+    return{hit:false};
+  },
+  outcome(impact){
+    if(!impact.hit)return 'miss';
+    if(impact.speedMs<C.IMPACT_MIN)return 'weak';
+    if(impact.speedMs>C.IMPACT_MAX)return 'strong';
+    return 'success';
+  },
+};
+
+// ── PARACHUTE ANIMATION ─────────────────────────────────────────
+/*
+  Spawned on success at (startPx, startPy).
+  Falls from hit point to ground with gentle sway.
+  State: px, py, vy (downward speed), swayPhase, age
+*/
+const Para={
+  active:false,
+  px:0, py:0,       // canvas position
+  vy:0,             // pixels/s downward
+  swayPhase:0,      // for sinusoidal horizontal sway
+  age:0,            // seconds since spawn
+  groundY:0,        // target y to stop at
+  done:false,
+
+  spawn(px,py,groundY){
+    this.active=true; this.done=false;
+    this.px=px; this.py=py;
+    this.vy=30;          // start drifting down at 30 px/s
+    this.swayPhase=Math.random()*Math.PI*2;
+    this.age=0;
+    this.groundY=groundY;
+  },
+
+  update(dt){
+    if(!this.active||this.done)return;
+    this.age+=dt;
+    // Gentle drift down, decelerating to terminal velocity ~60px/s
+    this.vy=Math.min(this.vy+20*dt,65);
+    this.py+=this.vy*dt;
+    // Sinusoidal sway in x
+    this.px+=Math.sin(this.age*1.8+this.swayPhase)*22*dt;
+    if(this.py>=this.groundY-12){
+      this.py=this.groundY-12;
+      this.done=true;
+    }
+  },
+
+  draw(ctx){
+    if(!this.active)return;
+    const{px,py}=this;
+    const alpha=this.done?Math.max(0,1-(this.age-1.5)*0.8):1;
+    if(alpha<=0){this.active=false;return;}
+    ctx.save();ctx.globalAlpha=alpha;
+
+    // Canopy — dome shape
+    const cw=28,ch=14;
+    const cgrad=ctx.createRadialGradient(px,py-ch*0.6,2,px,py-ch*0.5,cw);
+    cgrad.addColorStop(0,'#ff9999');
+    cgrad.addColorStop(0.5,'#ff4444');
+    cgrad.addColorStop(1,'rgba(180,0,0,0.7)');
+    ctx.fillStyle=cgrad;
+    ctx.beginPath();
+    ctx.arc(px,py-ch,cw,Math.PI,0);  // top semicircle
+    ctx.closePath();ctx.fill();
+
+    // Canopy panels (alternating lighter stripes)
+    ctx.strokeStyle='rgba(255,255,255,0.35)';ctx.lineWidth=1;
+    for(let i=0;i<5;i++){
+      const angle=Math.PI+i*(Math.PI/4);
+      ctx.beginPath();
+      ctx.moveTo(px,py-ch);
+      ctx.lineTo(px+Math.cos(angle)*cw,py-ch+Math.sin(angle)*ch);
+      ctx.stroke();
+    }
+
+    // Suspension lines (4 cords from canopy rim to rocket)
+    ctx.strokeStyle='rgba(255,255,255,0.55)';ctx.lineWidth=0.8;
+    [-cw*0.7,-cw*0.25,cw*0.25,cw*0.7].forEach(ox=>{
+      ctx.beginPath();
+      ctx.moveTo(px+ox,py-ch*0.1);
+      ctx.lineTo(px,py+8);
+      ctx.stroke();
+    });
+
+    // Freed rocket body hanging below
+    ctx.save();ctx.translate(px,py+8);
+    // small rocket body
+    const bg=ctx.createLinearGradient(-4,0,4,0);
+    bg.addColorStop(0,'#b33c00');bg.addColorStop(0.5,'#e05500');bg.addColorStop(1,'#b33c00');
+    ctx.fillStyle=bg;
+    ctx.beginPath();ctx.roundRect(-3,-10,6,14,[1.5]);ctx.fill();
+    ctx.fillStyle='#cc2222';
+    ctx.beginPath();ctx.moveTo(0,-16);ctx.lineTo(-3,-10);ctx.lineTo(3,-10);ctx.closePath();ctx.fill();
+    ctx.restore();
+
+    ctx.restore();
+  },
+
+  reset(){this.active=false;this.done=false;},
+};
+
+// ── RENDERER ─────────────────────────────────────────────────────
+const R={
+  canvas:null,ctx:null,W:0,H:0,ppm:120,
+
+  init(cv){this.canvas=cv;this.ctx=cv.getContext('2d');this.resize();},
+
+  resize(){
+    const el=this.canvas.parentElement;
+    const dpr=window.devicePixelRatio||1;
+    const W=el.clientWidth,H=el.clientHeight;
+    this.W=W;this.H=H;
+    this.canvas.width=W*dpr;this.canvas.height=H*dpr;
+    this.canvas.style.width=W+'px';this.canvas.style.height=H+'px';
+    this.ctx.setTransform(dpr,0,0,dpr,0,0);
+    this.ppm=((H-this.groundPad)*0.46)/C.TREE_GH;
+  },
+
+  get groundPad(){return Math.max(60,this.H*0.13);},
+  get groundY(){return this.H-this.groundPad;},
+  get launchX(){return this.W*C.LAUNCH_X_FRAC;},
+  get launchY(){return this.groundY-34;},
+  get treeX(){return this.launchX+C.TREE_GX*this.ppm+GS.swayPx;},
+  get targetPy(){return this.groundY-GS.targetH*this.ppm;},
+
+  velToOrient(vx,vy){return Math.atan2(-vy,vx)*180/Math.PI+90;},
+  sliderToOrient(deg){
+    const r=deg*Math.PI/180;
+    return Math.atan2(-Math.sin(r),Math.cos(r))*180/Math.PI+90;
+  },
+
+  // ── SCENE ──
+  clear(){
+    const{ctx,W,H,groundY}=this;
+    const g=ctx.createLinearGradient(0,0,0,groundY);
+    g.addColorStop(0,'#050816');g.addColorStop(0.45,'#12244a');g.addColorStop(1,'#3272a8');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  },
+  drawStars(){
+    const{ctx,W,groundY}=this;
+    ctx.fillStyle='rgba(255,255,255,0.68)';
+    [55,26,155,50,245,14,345,40,425,22,525,35,615,12,88,76,215,68,380,61,470,44,570,26,675,66]
+      .reduce((a,v,i)=>i%2===0?[...a,[v]]:[...a.slice(0,-1),[...a[a.length-1],v]],[])
+      .forEach(([sx,sy])=>{if(sy/groundY<0.52){ctx.beginPath();ctx.arc(sx*W/720,sy,1.4,0,Math.PI*2);ctx.fill();}});
+  },
+  drawGround(){
+    const{ctx,W,H,groundY}=this;
+    const g=ctx.createLinearGradient(0,groundY,0,H);
+    g.addColorStop(0,'#3d6e28');g.addColorStop(0.3,'#2d5018');g.addColorStop(1,'#192e0c');
+    ctx.fillStyle=g;ctx.fillRect(0,groundY,W,H-groundY);
+    ctx.strokeStyle='#4e8830';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(0,groundY);ctx.lineTo(W,groundY);ctx.stroke();
+    ctx.fillStyle='#4e8830';
+    for(let x=18;x<W;x+=26){
+      const off=Math.sin(x*0.3)*3;
+      ctx.beginPath();ctx.moveTo(x-4,groundY+off);ctx.lineTo(x,groundY-6+off);ctx.lineTo(x+4,groundY+off);ctx.fill();
+    }
+  },
+  drawBgTrees(){
+    const{W,groundY}=this;
+    [0.03,0.35,0.09,0.41,0.21,0.31,0.28,0.37,0.71,0.38,0.79,0.32,0.88,0.43,0.96,0.36]
+      .reduce((a,v,i)=>i%2===0?[...a,[v]]:[...a.slice(0,-1),[...a[a.length-1],v]],[])
+      .forEach(([xf,hf])=>this._bgTree(xf*W,groundY,groundY*hf));
+  },
+  _bgTree(x,gy,h){
+    const{ctx}=this,tw=h*0.07,th=h*0.25;
+    ctx.fillStyle='#4a2c0a';ctx.fillRect(x-tw/2,gy-th,tw,th);
+    ['#193e0e','#244f18','#193e0e'].forEach((c,l)=>{
+      const ly=gy-th-h*0.22*l,lw=h*0.35*(1-l*0.2);
+      ctx.fillStyle=c;ctx.beginPath();
+      ctx.moveTo(x,ly-h*0.28);ctx.lineTo(x-lw,ly);ctx.lineTo(x+lw,ly);ctx.closePath();ctx.fill();
+    });
+  },
+  drawMainTree(){
+    const{ctx,treeX:tx,groundY:gy,ppm}=this;
+    const tHpx=GS.treeH*ppm,tw=Math.max(12,tHpx*0.07);
+    const tg=ctx.createLinearGradient(tx-tw,0,tx+tw,0);
+    tg.addColorStop(0,'#3a220a');tg.addColorStop(0.5,'#6a3c14');tg.addColorStop(1,'#3a220a');
+    ctx.fillStyle=tg;ctx.fillRect(tx-tw/2,gy-tHpx,tw,tHpx);
+    ctx.strokeStyle='rgba(0,0,0,0.16)';ctx.lineWidth=1;
+    for(let i=0;i<4;i++){ctx.beginPath();ctx.moveTo(tx-4+i*2.2,gy);ctx.lineTo(tx-4+i*2.2+1.4,gy-tHpx*0.88);ctx.stroke();}
+    const cols=['#1a5212','#236819','#2a8020','#184510'];
+    [[0,tHpx*0.27],[-tHpx*0.17,tHpx*0.23],[-tHpx*0.32,tHpx*0.18],[-tHpx*0.46,tHpx*0.13]].forEach(([yo,rx],i)=>{
+      const cy=gy-tHpx*0.64+yo;
+      ctx.fillStyle=cols[i];ctx.beginPath();ctx.ellipse(tx,cy,rx,rx*0.72,0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,0.04)';ctx.beginPath();ctx.ellipse(tx-rx*0.18,cy-rx*0.12,rx*0.48,rx*0.28,-0.3,0,Math.PI*2);ctx.fill();
+    });
+    this._ruler(tx,gy,ppm);
+  },
+  _ruler(tx,gy,ppm){
+    const{ctx}=this,mx=tx+Math.max(28,ppm*0.15);
+    const FT=40/C.TREE_GH;
+    ctx.strokeStyle='rgba(255,255,200,0.2)';ctx.setLineDash([4,4]);ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(mx,gy);ctx.lineTo(mx,gy-GS.treeH*ppm);ctx.stroke();ctx.setLineDash([]);
+    [0,C.TREE_GH*0.25,C.TREE_GH*0.5,GS.targetH,C.TREE_GH*0.75,GS.treeH].forEach(m=>{
+      if(m>GS.treeH+0.05)return;
+      const py=gy-m*ppm,isTgt=Math.abs(m-GS.targetH)<0.05;
+      ctx.strokeStyle=isTgt?'rgba(255,200,0,0.85)':'rgba(255,255,255,0.25)';ctx.lineWidth=isTgt?2:1;
+      ctx.beginPath();ctx.moveTo(mx-5,py);ctx.lineTo(mx+5,py);ctx.stroke();
+      ctx.fillStyle=isTgt?'rgba(255,200,0,0.95)':'rgba(255,255,255,0.42)';
+      ctx.font=(isTgt?'bold ':'')+Math.max(8,Math.min(10,ppm*0.08))+'px Nunito';
+      ctx.fillText(Math.round(m*FT)+'ft',mx+6,py+3);
+    });
+  },
+
+  // Stuck rocket — hidden once parachute is active
+  drawStuckRocket(){
+    if(Para.active)return;  // replaced by parachute animation
+    const{ctx,treeX:px,targetPy:py}=this;
+    ctx.save();ctx.translate(px,py);ctx.rotate(Math.PI/2);
+    this._rBody(0,0,0.62,'#e05500','#b33c00','#ff8844');ctx.restore();
+    ctx.strokeStyle='rgba(255,100,100,0.5)';ctx.lineWidth=1;
+    for(let i=-2;i<=2;i++){ctx.beginPath();ctx.moveTo(px+i*4,py-6);ctx.lineTo(px+i*2,py-14);ctx.stroke();}
+    ctx.fillStyle='rgba(255,70,70,0.35)';ctx.beginPath();ctx.ellipse(px,py-17,8,4.5,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(255,200,0,0.8)';ctx.font='bold 8px Nunito';ctx.textAlign='center';
+    ctx.fillText('STUCK',px,py-24);ctx.textAlign='left';
+  },
+
+  drawRocket(px,py,orientDeg,thrustOn,burnMult=1){
+    const{ctx}=this;
+    ctx.save();ctx.translate(px,py);ctx.rotate(orientDeg*Math.PI/180);
+    this._rBody(0,0,1,'#2e6ae0','#1a45a8','#6aacff');
+    if(thrustOn&&burnMult>0.04)this._flame(0,0,burnMult);
+    ctx.restore();
+  },
+  _rBody(cx,cy,s,mid,dark,light){
+    const{ctx}=this;
+    const bg=ctx.createLinearGradient(cx-6*s,cy,cx+6*s,cy);
+    bg.addColorStop(0,dark);bg.addColorStop(0.4,mid);bg.addColorStop(0.6,light);bg.addColorStop(1,dark);
+    ctx.fillStyle=bg;ctx.beginPath();ctx.roundRect(cx-4.5*s,cy-17*s,9*s,22*s,[2*s]);ctx.fill();
+    ctx.fillStyle='#e83333';ctx.beginPath();
+    ctx.moveTo(cx,cy-25*s);ctx.lineTo(cx-4.5*s,cy-17*s);ctx.lineTo(cx+4.5*s,cy-17*s);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#e05500';
+    [[-1,1],[1,-1]].forEach(([a,b])=>{
+      ctx.beginPath();ctx.moveTo(cx+4.5*s*a,cy+4*s);ctx.lineTo(cx+4.5*s*a+b*11*s,cy+4.5*s);ctx.lineTo(cx+4.5*s*a,cy+4*s);ctx.fill();
+    });
+    ctx.fillStyle='rgba(190,235,255,0.85)';ctx.beginPath();ctx.arc(cx,cy-9*s,2.8*s,0,Math.PI*2);ctx.fill();
+  },
+  _flame(cx,cy,bm){
+    const{ctx}=this,f=(0.7+Math.random()*0.5)*bm;
+    const fg=ctx.createLinearGradient(cx,cy+5,cx,cy+20*f);
+    fg.addColorStop(0,`rgba(255,210,0,${0.9*bm})`);fg.addColorStop(0.5,`rgba(255,110,0,${0.7*bm})`);fg.addColorStop(1,'rgba(255,50,0,0)');
+    ctx.fillStyle=fg;ctx.beginPath();ctx.ellipse(cx,cy+11*f,4.5*bm,9*f,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=`rgba(255,255,140,${0.8*bm})`;ctx.beginPath();ctx.ellipse(cx,cy+8*f,2.2*bm,4.5*f,0,0,Math.PI*2);ctx.fill();
+  },
+
+  drawTrail(states){
+    if(states.length<2)return;
+    const{ctx}=this;ctx.save();
+    for(let i=1;i<states.length;i++){
+      const s=states[i],p=states[i-1],a=i/states.length;
+      ctx.strokeStyle=s.thrust_on?`rgba(255,160,60,${a*0.5})`:`rgba(80,160,255,${a*0.42})`;
+      ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(p.px,p.py);ctx.lineTo(s.px,s.py);ctx.stroke();
+    }
+    ctx.restore();
+  },
+
+  drawPrediction(states,bands){
+    if(states.length<2)return;
+    const{ctx}=this;ctx.save();
+    if(bands&&bands.length){
+      ctx.setLineDash([3,9]);ctx.strokeStyle='rgba(255,215,0,0.14)';ctx.lineWidth=1;
+      bands.forEach(b=>{if(b.length<2)return;ctx.beginPath();ctx.moveTo(b[0].px,b[0].py);b.forEach(s=>ctx.lineTo(s.px,s.py));ctx.stroke();});
+    }
+    ctx.setLineDash([7,5]);ctx.strokeStyle='rgba(255,215,0,0.5)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(states[0].px,states[0].py);
+    states.forEach(s=>ctx.lineTo(s.px,s.py));ctx.stroke();ctx.setLineDash([]);
+    let apex=states[0];states.forEach(s=>{if(s.py<apex.py)apex=s;});
+    ctx.fillStyle='rgba(255,215,0,0.7)';ctx.beginPath();ctx.arc(apex.px,apex.py,5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(255,215,0,0.9)';ctx.font='9px Nunito';
+    ctx.fillText(`▲${Math.round(apex.gy*40/C.TREE_GH)}ft`,apex.px+6,apex.py+3);
+    const last=states[states.length-1];
+    ctx.strokeStyle='rgba(255,100,0,0.7)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(last.px-6,last.py-6);ctx.lineTo(last.px+6,last.py+6);
+    ctx.moveTo(last.px+6,last.py-6);ctx.lineTo(last.px-6,last.py+6);ctx.stroke();
+    ctx.restore();
+  },
+
+  drawForces(s,px,py){
+    if(!s)return;const NS=28;
+    this._arrow(px,py,0,s.mass*C.GRAVITY*NS,'#ff4444',`g=${(s.mass*C.GRAVITY).toFixed(2)}N`);
+    if(s.thrust_on&&s.thrustN>0.001){const a=GS.params.angleDeg*Math.PI/180;this._arrow(px,py,Math.cos(a)*s.thrustN*NS,-Math.sin(a)*s.thrustN*NS,'#ff8800',`T=${s.thrustN.toFixed(3)}N`);}
+    const sp=Math.sqrt(s.vx*s.vx+s.vy*s.vy);
+    if(sp>0.05&&s.dragN>0.0001){const dl=Math.min(s.dragN*NS*100,48);this._arrow(px,py,-(s.vx/sp)*dl,(s.vy/sp)*dl,'#4488ff',`D=${s.dragN.toFixed(4)}N`);}
+    if(Math.abs(s.windN)>0.0001){const wl=Math.min(Math.abs(s.windN)*NS*100,44);this._arrow(px,py,Math.sign(s.windN)*wl,0,'#00cccc',`W=${s.windN.toFixed(4)}N`);}
+  },
+  _arrow(x,y,dx,dy,col,label){
+    const len=Math.sqrt(dx*dx+dy*dy);if(len<3)return;
+    const{ctx}=this;ctx.save();ctx.globalAlpha=0.8;
+    ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=1.7;
+    ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+dx,y+dy);ctx.stroke();
+    const a=Math.atan2(dy,dx);
+    ctx.beginPath();ctx.moveTo(x+dx,y+dy);
+    ctx.lineTo(x+dx-7*Math.cos(a-.42),y+dy-7*Math.sin(a-.42));
+    ctx.lineTo(x+dx-7*Math.cos(a+.42),y+dy-7*Math.sin(a+.42));
+    ctx.closePath();ctx.fill();
+    ctx.font='8px Nunito';ctx.fillText(label,x+dx+3,y+dy);ctx.restore();
+  },
+
+  drawWindLines(wind){
+    if(Math.abs(wind)<0.005)return;
+    const{ctx,W,groundY}=this,dir=wind>0?1:-1,str=Math.min(Math.abs(wind)/0.12,1);
+    ctx.save();ctx.globalAlpha=0.14+str*0.2;ctx.strokeStyle='#b0d8ff';ctx.lineWidth=1.4;
+    const t=Date.now()*0.001;
+    for(let i=0;i<4;i++){
+      const yw=groundY*(0.18+i*0.16),off=((t*55*dir+i*100)%W+W)%W,len=28+str*16;
+      ctx.setLineDash([len*0.6,len*0.4]);
+      ctx.beginPath();ctx.moveTo(dir>0?off:W-off,yw);ctx.lineTo((dir>0?off:W-off)+dir*len*1.4,yw);ctx.stroke();
+    }
+    ctx.setLineDash([]);ctx.restore();
+  },
+
+  drawPad(){
+    const{ctx,launchX:x,groundY:gy}=this,y=gy-4;
+    ctx.fillStyle='#555';ctx.fillRect(x-15,y-6,30,6);
+    ctx.strokeStyle='#777';ctx.lineWidth=2.2;
+    ctx.beginPath();ctx.moveTo(x-9,y);ctx.lineTo(x-15,y+12);ctx.moveTo(x+9,y);ctx.lineTo(x+15,y+12);ctx.stroke();
+    ctx.strokeStyle='#aaa';ctx.lineWidth=1.6;
+    ctx.beginPath();ctx.moveTo(x,y-6);ctx.lineTo(x,y-30);ctx.stroke();
+  },
+
+  drawHUD(){
+    const{ctx}=this;
+    ctx.save();
+    ctx.fillStyle='rgba(0,0,0,0.35)';ctx.fillRect(6,6,164,24);
+    ctx.fillStyle='rgba(255,215,0,0.9)';ctx.font='bold 11px Nunito';
+    ctx.fillText(`Level ${GS.level+1}: ${C.LEVELS[GS.level].label}`,12,21);
+    ctx.restore();
+  },
+
+  // ── FUEL GAUGE ─────────────────────────────────────────────────
+  /*
+    Drawn in bottom-left of canvas during flying/replay.
+    burnFrac: Phys.burnCurve(t, burnTime) → 0-1 (current thrust level)
+    fuelLeft: 1 - (t / burnTime) clamped 0-1 (actual propellant remaining)
+    We show fuelLeft as a depleting bar, burnFrac as glow intensity.
+  */
+  drawFuelGauge(t, burnTime){
+    const{ctx,groundY,W}=this;
+    const fuelLeft=Math.max(0,1-t/Math.max(burnTime,0.001));
+    const burnFrac=Phys.burnCurve(t,burnTime);
+    const burnerOn=burnFrac>0.02;
+
+    // Gauge dimensions — bottom-left, responsive size
+    const gx=12, gy2=groundY-10;
+    const gw=14, gh=Math.min(70,groundY*0.22);
+    const barH=gh*fuelLeft;
+
+    ctx.save();
+
+    // Background track
+    ctx.fillStyle='rgba(0,0,0,0.55)';
+    ctx.beginPath();ctx.roundRect(gx-2,gy2-gh-2,gw+4,gh+4,[4]);ctx.fill();
+
+    // Colour: full=green, half=orange, empty=red
+    const r=Math.round(255*(1-fuelLeft*0.5));
+    const g2=Math.round(200*fuelLeft);
+    ctx.fillStyle=`rgb(${r},${g2},20)`;
+    if(barH>0){
+      ctx.beginPath();ctx.roundRect(gx,gy2-barH,gw,barH,[3]);ctx.fill();
+    }
+
+    // Glow pulse when engine is burning
+    if(burnerOn){
+      ctx.shadowBlur=8*burnFrac;ctx.shadowColor=`rgb(${r},${g2},20)`;
+      ctx.fillStyle=`rgba(${r},${g2},20,${0.3*burnFrac})`;
+      ctx.beginPath();ctx.roundRect(gx,gy2-barH,gw,barH,[3]);ctx.fill();
+      ctx.shadowBlur=0;
+    }
+
+    // Border
+    ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.roundRect(gx-2,gy2-gh-2,gw+4,gh+4,[4]);ctx.stroke();
+
+    // Label
+    ctx.fillStyle='rgba(255,255,255,0.7)';
+    ctx.font='bold 8px Nunito';ctx.textAlign='center';
+    ctx.fillText('FUEL',gx+gw/2,gy2+10);
+
+    // ENGINE ON flash
+    if(burnerOn){
+      ctx.fillStyle=`rgba(255,180,0,${0.6*burnFrac})`;
+      ctx.font='bold 7px Nunito';
+      ctx.fillText('🔥ON',gx+gw/2,gy2-gh-8);
+    }
+
+    ctx.textAlign='left';ctx.restore();
+  },
+};
+
+// ── PARTICLES ───────────────────────────────────────────────────
+const FX={
+  boom:[],confetti:[],
+  explode(px,py){
+    this.boom=[];const cols=['#ff4400','#ff9900','#ffcc00','#ff1111','#fff'];
+    for(let i=0;i<52;i++){const a=Math.random()*Math.PI*2,sp=2+Math.random()*6;
+      this.boom.push({x:px,y:py,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r:2+Math.random()*6,col:cols[Math.floor(Math.random()*5)],a:1});}
+  },
+  celebrate(px,py){
+    this.confetti=[];const cols=['#ff6b35','#ffd700','#4ecb71','#4488ff','#ff69b4','#00e5ff'];
+    for(let i=0;i<75;i++)this.confetti.push({
+      x:px+(Math.random()-.5)*110,y:py+(Math.random()-.5)*55,
+      vx:(Math.random()-.5)*4,vy:-3-Math.random()*5,
+      w:5+Math.random()*8,h:3+Math.random()*4,
+      rot:Math.random()*Math.PI*2,rv:(Math.random()-.5)*0.3,
+      col:cols[Math.floor(Math.random()*6)],a:1});
+  },
+  update(){
+    this.boom.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.13;p.a-=0.017;p.r*=0.98;});
+    this.boom=this.boom.filter(p=>p.a>0);
+    this.confetti.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.07;p.vx*=0.99;p.rot+=p.rv;p.a-=0.007;});
+    this.confetti=this.confetti.filter(p=>p.a>0);
+  },
+  draw(ctx){
+    this.boom.forEach(p=>{ctx.save();ctx.globalAlpha=p.a;ctx.fillStyle=p.col;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();ctx.restore();});
+    this.confetti.forEach(p=>{ctx.save();ctx.globalAlpha=p.a;ctx.fillStyle=p.col;ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});
+  },
+};
+
+// ── GAME STATE ──────────────────────────────────────────────────
+const GS={
+  // phase: 'idle' | 'flying' | 'outcome' | 'replay'
+  phase:'idle',
+  level:0,attempts:0,score:0,prediction:null,
+  windBase:0,windDir:1,windVar:0,curWind:0,
+  treeH:C.TREE_GH,targetH:C.TARGET_GY,
+  swayPx:0,swayT:0,
+  params:{power:50,burnTime:1.5,angleDeg:C.ANG_DEF,windSens:2},
+  simStates:[],simIdx:0,
+  predStates:[],predBands:[],
+  // Replay state
+  replayIdx:0,
+  // Saved outcome for restoring after replay
+  _lastOutcome:null,_lastImpact:null,
+
+  init(){this.applyLevel();this.updateUI();},
+
+  applyLevel(){
+    const lv=C.LEVELS[this.level];
+    this.windBase=lv.wind;this.windVar=lv.wv;
+    this.windDir=Math.random()>.5?1:-1;
+    this.curWind=this.windBase*this.windDir+(Math.random()-.5)*this.windVar;
+    if(lv.thv>0){this.treeH=C.TREE_GH*(0.85+Math.random()*0.3);this.targetH=this.treeH*0.62;}
+    else{this.treeH=C.TREE_GH;this.targetH=C.TARGET_GY;}
+    this.updateWind();
+  },
+
+  updateWind(){
+    const spd=Math.abs(this.curWind);
+    const names=['Calm','Light','Moderate','Strong','Gusty'];
+    document.getElementById('wl').textContent=`${names[Math.min(Math.floor(spd/0.04),4)]} (${spd.toFixed(3)})`;
+    document.getElementById('wa').textContent=this.curWind>0.005?'→':this.curWind<-0.005?'←':'—';
+  },
+
+  _run(wb,useRandom){
+    const p=this.params;
+    const raw=Phys.simulate({power:p.power,burnTime:p.burnTime,angleDeg:p.angleDeg,
+      windSens:p.windSens,windBase:wb,windDir:this.windDir,windVar:this.windVar,useRandom});
+    return Phys.toPixels(raw,R.launchX,R.launchY,R.ppm);
+  },
+
+  computePrediction(){
+    if(!document.getElementById('tp').checked){this.predStates=[];this.predBands=[];return;}
+    this.predStates=this._run(this.windBase,false);
+    this.predBands=[];
+    if(this.windVar>0.01)
+      for(let i=0;i<3;i++)this.predBands.push(this._run(this.windBase+(i-1)*this.windVar*0.85,false));
+  },
+
+  launch(){
+    if(this.phase!=='idle')return;
+    this.attempts++;this.phase='flying';
+    this.simStates=this._run(this.windBase,true);
+    this.simIdx=0;
+    Para.reset();
+    document.getElementById('bl').disabled=true;
+    this.updateUI();
+  },
+
+  reset(){
+    this.phase='idle';this.simStates=[];this.simIdx=0;
+    this.replayIdx=0;this._lastOutcome=null;this._lastImpact=null;
+    FX.boom=[];FX.confetti=[];
+    Para.reset();
+    document.getElementById('bl').disabled=false;
+    document.getElementById('ov').classList.remove('vis');
+    document.getElementById('replay-bar').classList.remove('vis');
+    this.prediction=null;
+    document.querySelectorAll('.pb').forEach(b=>b.classList.remove('sel'));
+    this.computePrediction();this.updateWind();
+  },
+
+  nextLevel(){
+    if(this.level<C.LEVELS.length-1){this.level++;this.applyLevel();}
+    this.reset();
+  },
+
+  setPred(type){
+    this.prediction=type;
+    document.querySelectorAll('.pb').forEach(b=>b.classList.remove('sel'));
+    document.querySelectorAll('.pb')[{success:0,weak:1,strong:2}[type]]?.classList.add('sel');
+  },
+
+  // ── Replay controls ──────────────────────────────────────────
+  startReplay(){
+    if(this.simStates.length===0)return;
+    // Hide outcome overlay, show replay bar
+    document.getElementById('ov').classList.remove('vis');
+    document.getElementById('replay-bar').classList.add('vis');
+    Para.reset();  // hide parachute during replay
+    FX.boom=[];FX.confetti=[];
+    this.replayIdx=0;
+    this.phase='replay';
+  },
+
+  stopReplay(){
+    document.getElementById('replay-bar').classList.remove('vis');
+    this.phase='outcome';
+    // Re-show outcome overlay with saved result
+    document.getElementById('ov').classList.add('vis');
+    // Re-trigger parachute if it was a success
+    if(this._lastOutcome==='success'){
+      FX.celebrate(R.treeX,R.targetPy);
+      Para.spawn(R.treeX,R.targetPy,R.groundY);
+    }
+  },
+
+  showOutcome(outcome,impact){
+    this.phase='outcome';
+    this._lastOutcome=outcome;this._lastImpact=impact;
+    document.getElementById('ov').classList.add('vis');
+    const g=id=>document.getElementById(id);
+    const ok=this.prediction===outcome;
+    const spd=impact?.speedMs!=null?` ${impact.speedMs.toFixed(2)} u/s`:'';
+
+    if(outcome==='success'){
+      g('oe').textContent='🎉';g('ot').textContent='Perfect Rescue!';
+      g('om').textContent=`Free! Parachute deployed! 🪂${spd}`;
+      const pts=Math.max(10,100-(this.attempts-1)*15)+(ok?20:0);this.score+=pts;
+      g('os').textContent=`+${pts} pts${ok?' ⭐ prediction bonus!':''}  Total: ${this.score}`;
+      g('bn').textContent=this.level<4?'🌟 Next Level!':'🏆 Play Again!';
+      g('bn').onclick=()=>this.nextLevel();
+      // Spawn parachute animation
+      Para.spawn(R.treeX,R.targetPy,R.groundY);
+      FX.celebrate(R.treeX,R.targetPy);
+      this.hint('Amazing! You nailed the physics! 🎉');
+    }else if(outcome==='weak'){
+      g('oe').textContent='😔';g('ot').textContent='Not Enough Force!';
+      g('om').textContent=`Rocket stayed stuck.${spd} More power or longer burn!`;
+      g('os').textContent=`Attempt #${this.attempts}`;g('bn').textContent='🔄 Try Again';
+      g('bn').onclick=()=>this.reset();
+      this.hint('More power or burn time = more speed! ⚡');
+    }else if(outcome==='strong'){
+      g('oe').textContent='💥';g('ot').textContent='Too Much Force!';
+      g('om').textContent=`Both destroyed!${spd} Reduce power or burn time!`;
+      g('os').textContent=`Attempt #${this.attempts}`;FX.explode(R.treeX,R.targetPy);
+      g('bn').textContent='🔄 Try Again';g('bn').onclick=()=>this.reset();
+      this.hint('Too fast! Try 85° angle, 60% power, 1.5s. The arc over the tree needs to be gentle! 🎯');
+    }else{
+      g('oe').textContent='🌲';g('ot').textContent='Missed!';
+      g('om').textContent='Missed the tree. Use trajectory preview to aim! Try 85°, 60% power, 1.5s.';
+      g('os').textContent=`Attempt #${this.attempts}`;g('bn').textContent='🔄 Try Again';
+      g('bn').onclick=()=>this.reset();
+      this.hint('Enable Trajectory Preview — dashed line shows where you\'ll go. 📐');
+    }
+    document.getElementById('bl').disabled=false;this.updateUI();
+  },
+
+  hint(msg){document.getElementById('pt').textContent=msg;},
+  updateUI(){
+    document.getElementById('ll').textContent=this.level+1;
+    document.getElementById('la').textContent=this.attempts;
+    document.getElementById('ls').textContent=this.score;
+  },
+
+  update(dt){
+    const lv=C.LEVELS[this.level];
+    if(lv.moving){this.swayT+=dt;this.swayPx=Math.sin(this.swayT*1.2)*22;}
+    else{this.swayPx=0;}
+
+    // Update parachute in any phase
+    Para.update(dt);
+
+    if(this.phase==='flying'){
+      for(let i=0;i<C.SIM_SPEED&&this.simIdx<this.simStates.length-1;i++)this.simIdx++;
+      const hitR=C.HIT_R*R.ppm;
+      const impact=Phys.checkHit(this.simStates.slice(0,this.simIdx+1),R.treeX,R.targetPy,hitR);
+      if(impact.hit){this.showOutcome(Phys.outcome(impact),impact);return;}
+      if(this.simIdx>=this.simStates.length-1)this.showOutcome('miss',null);
+    }
+
+    if(this.phase==='replay'){
+      // Advance at quarter speed: 0.5 steps/frame
+      // Use fractional accumulator so non-integer steps work
+      this._replayAccum=(this._replayAccum||0)+C.REPLAY_SPEED;
+      while(this._replayAccum>=1&&this.replayIdx<this.simStates.length-1){
+        this.replayIdx++;this._replayAccum-=1;
+      }
+      // Auto-stop at end
+      if(this.replayIdx>=this.simStates.length-1){
+        setTimeout(()=>this.stopReplay(),400);
+        this.phase='replay_done'; // prevent double-stop
+      }
+    }
+  },
+};
+
+// ── INPUT ───────────────────────────────────────────────────────
+function initInput(){
+  const bind=(id,vid,fn)=>{
+    const sl=document.getElementById(id),lb=document.getElementById(vid);
+    const u=()=>{lb.textContent=fn(sl.value);GS.computePrediction();};
+    sl.addEventListener('input',u);u();
+  };
+  bind('sp','vp',v=>{GS.params.power=+v;return v+'%';});
+  bind('sb','vb',v=>{const s=(+v/6).toFixed(1);GS.params.burnTime=+s;return s+'s';});
+  bind('sa','va',v=>{GS.params.angleDeg=+v;const n=+v;return n+'°'+(n<85?'→':n>95?'←':'↑');});
+  bind('sw2','vw',v=>{GS.params.windSens=+v;return['Low','Med','High'][v-1];});
+  document.getElementById('tp').addEventListener('change',()=>GS.computePrediction());
+}
+
+// ── GAME LOOP ────────────────────────────────────────────────────
+let lastT=0;
+function loop(ts){
+  const dt=Math.min((ts-lastT)/1000,0.05);lastT=ts;
+  GS.update(dt);FX.update();
+
+  R.clear();R.drawStars();R.drawBgTrees();R.drawGround();
+  R.drawWindLines(GS.curWind);
+  R.drawMainTree();
+  R.drawHUD();R.drawPad();R.drawStuckRocket();
+
+  // Prediction (idle only)
+  if(GS.phase==='idle'&&GS.predStates.length>1)
+    R.drawPrediction(GS.predStates,GS.predBands);
+
+  // Determine which index drives the rocket rendering
+  const activeIdx = (GS.phase==='replay'||GS.phase==='replay_done')
+    ? GS.replayIdx : GS.simIdx;
+  const showRocketFlight = GS.phase==='flying'||GS.phase==='outcome'
+    ||GS.phase==='replay'||GS.phase==='replay_done';
+
+  if(showRocketFlight&&GS.simStates.length>0){
+    const trail=GS.simStates.slice(0,activeIdx+1);
+    R.drawTrail(trail);
+    const cur=GS.simStates[activeIdx];
+    if(cur){
+      const sp=Math.sqrt(cur.vx*cur.vx+cur.vy*cur.vy);
+      const orient=sp>0.02?R.velToOrient(cur.vx,cur.vy):R.sliderToOrient(GS.params.angleDeg);
+      const bm=Phys.burnCurve(cur.t,GS.params.burnTime);
+      // Don't draw rocket body during outcome (it hit the target) unless replaying
+      const drawBody=(GS.phase==='flying')||(GS.phase==='replay')||(GS.phase==='replay_done');
+      if(drawBody)R.drawRocket(cur.px,cur.py,orient,cur.thrust_on,bm);
+
+      // Fuel gauge during flight and replay
+      if(GS.phase==='flying'||GS.phase==='replay'||GS.phase==='replay_done')
+        R.drawFuelGauge(cur.t,GS.params.burnTime);
+
+      if(GS.phase==='flying'&&document.getElementById('tf').checked)
+        R.drawForces(cur,cur.px,cur.py);
+    }
+  }
+
+  // Idle: rocket on pad
+  if(GS.phase==='idle')
+    R.drawRocket(R.launchX,R.launchY,R.sliderToOrient(GS.params.angleDeg),false,0);
+
+  // Parachute (drawn on top of everything)
+  Para.draw(R.ctx);
+
+  FX.draw(R.ctx);
+  requestAnimationFrame(loop);
+}
+
+// ── RESIZE ───────────────────────────────────────────────────────
+function onResize(){R.resize();GS.computePrediction();}
+window.addEventListener('load',()=>{
+  R.init(document.getElementById('cv'));
+  initInput();GS.init();GS.computePrediction();
+  requestAnimationFrame(loop);
+});
+window.addEventListener('resize',()=>setTimeout(onResize,60));
+window.addEventListener('orientationchange',()=>setTimeout(onResize,120));
+document.getElementById('cv').addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
+</script>
+</body>
+</html>
